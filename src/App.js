@@ -16,7 +16,7 @@ export default function App() {
     setmax(300);
     setmin(0);
     setnumpalpites(1);
-    setpalpite(150);
+    setpalpite(151);
   };
 
   const menor = () => {
