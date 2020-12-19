@@ -1,70 +1,88 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./styles.css";
 
-export default function App() {
-  const [estado, setestado] = useState("Iniciar");
-  const [numpalpites, setnumpalpites] = useState(1);
-  const [max, setmax] = useState(300);
-  const [min, setmin] = useState(0);
-  const [palpite, setpalpite] = useState(150);
+const MostraVoltas = (props) => {
+  return (
+    <p>{props.voltas}
+      <h2>Voltas</h2>
+    </p>
+  )
+}
+const MostrarTempo = (props) => {
 
-  const fimdejogo = () => {
-    setestado("fim");
-  };
-  const iniciarjogo = () => {
-    setestado("Jogando");
-    setmax(300);
-    setmin(0);
-    setnumpalpites(1);
-    setpalpite(151);
-  };
+  const tempo = props.tempo
+  const min = Math.round(tempo / 60)
+  const seg = tempo % 60
+  const minstr = min < 10 ? '0' + min : min
+  const segstr = seg < 10 ? '0' + seg : seg
+  return (
 
-  const menor = () => {
-    setnumpalpites(numpalpites + 1);
-    setmax(palpite);
-    const proxpalpite = parseInt((palpite - min) / 2) + min;
-    setpalpite(proxpalpite);
-  };
-
-  const maior = () => {
-    setnumpalpites(numpalpites + 1);
-    setmin(palpite);
-    const proxpalpite = parseInt((max - palpite) / 2 + palpite);
-    setpalpite(proxpalpite);
-  };
-  const desistir = () => {
-    setestado("Iniciar");
-  };
-  if (estado === "Iniciar") {
-    return (
-      <div className="App">
-        <h3>Clique em inicar para gerar um palpite</h3>
-        <button onClick={iniciarjogo}>Iniciar jogo</button>
-      </div>
-    );
-  }
-  if (estado === "fim") {
-    return (
-      <div className="App">
-        <h3>Parabens você Acertou !!!!!!!</h3>
-        <h5>Quantidades de palpite é : {numpalpites}</h5>
-        <h5>Palpite certo é: {palpite}</h5>
-        <h5>Clique para jogar novamente</h5>
-        <button onClick={iniciarjogo}>Iniciar jogo</button>
-      </div>
-    );
-  }
+    <p><h2>{minstr}:{segstr}</h2>
+      
+    </p>
+  )
+}
+const Botao = (props) => {
 
   return (
-    <div className="App">
-      <h1>Que Iniciem os jogos </h1>
-      <h2>Meu palpite é: {palpite}</h2>
 
-      <button onClick={menor}>Menor</button>
-      <button onClick={fimdejogo}>Acertou!</button>
-      <button onClick={maior}>Maior</button>
-      <h5> Clique para desistir</h5>
-      <button onClick={desistir}> Desistir</button>
+    <button onClick={props.onClick}>{props.texto}</button>
+
+  )
+}
+export default function App() {
+  const [numVoltas, setnumVoltas] = useState(1)
+  const [comecar, setcomecar] = useState(false)
+  const [controle, setcontrole] = useState(0)
+  const [tempo, settempo] = useState(0)
+  useEffect(() => {
+    let timer = null
+    if (comecar) {
+      timer = setInterval(() => {
+        settempo(old => old + 1)
+      }, 1000);
+    }
+    return () => {
+      if (timer) {
+        clearInterval(timer)
+      }
+    }
+  }, [comecar])
+  const iniciar = () => {
+    setcomecar(!comecar)
+    setcontrole(1)
+  }
+  const incrementa = () => {
+    setnumVoltas(numVoltas + 1)
+  }
+  const decrementa = () => {
+    if (numVoltas > 1) {
+      setnumVoltas(numVoltas - 1)
+    }
+  }
+  const reiniciar = () => {
+    setnumVoltas(1)
+    settempo(0)
+    setcontrole(0)
+    setcomecar(false)
+  }
+  return (
+    <div className="App">
+      <h1>Contador de Voltas </h1>
+      <MostraVoltas voltas={numVoltas}></MostraVoltas>
+      <Botao onClick={incrementa} texto='+'></Botao>
+      <Botao onClick={decrementa} texto='-'></Botao>
+      { controle > 0 &&
+        <p>
+        <h4>Tempo medio por volta</h4>
+      <MostrarTempo tempo={Math.round(tempo / numVoltas)}></MostrarTempo>
+      <h4>Tempo normal</h4>
+      <MostrarTempo tempo={tempo}></MostrarTempo>
+      </p>
+      }
+      <h5> Click abaixo para iniciar</h5>
+      <Botao onClick={iniciar} texto={comecar ? 'Pausar': 'Iniciar'}></Botao>
+      <Botao onClick={reiniciar} texto='Zerar'></Botao>
     </div>
   );
 }
